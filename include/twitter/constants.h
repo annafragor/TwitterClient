@@ -35,16 +35,18 @@
 
 #include <string>
 
-const std::string OAUTH_CONSUMER_KEY =      "xNDZ06PUh5puXTsP6u9NNCWAZ";
-const std::string OAUTH_CONSUMER_SECRET =   "vw4SjgZ150H0HC6536lj2IO8ktzyWhP52mLOSTFUCitqQNxd9I";
+const std::string URL_SEPARATOR = "&";
 
-const std::string OAUTH_AUTHORISE_URL =     "https://api.twitter.com/oauth/authorize";
+const std::string CONSUMER_KEY =      "xNDZ06PUh5puXTsP6u9NNCWAZ";
+const std::string CONSUMER_SECRET =   "vw4SjgZ150H0HC6536lj2IO8ktzyWhP52mLOSTFUCitqQNxd9I";
 
-const std::string OAUTH_REQUEST_TOKEN_URL = "https://api.twitter.com/oauth/request_token";
-const std::string OAUTH_ACCESS_TOKEN_URL =  "https://api.twitter.com/oauth/access_token";
-const std::string OAUTH_ACCOUNT_DATA_URL =  "https://api.twitter.com/1.1/users/show.json"; /*адрес API получения информации о пользователе*/
+const std::string AUTHORIZE_URL =     "https://api.twitter.com/oauth/authorize";
+const std::string REQUEST_TOKEN_URL = "https://api.twitter.com/oauth/request_token";
+const std::string ACCESS_TOKEN_URL =  "https://api.twitter.com/oauth/access_token";
 
-const std::string CALLBACK_URL =            "https://github.com/moskanka/TwitterClient"; /*адрес, куда пользователь
+const std::string ACCOUNT_DATA_URL =  "https://api.twitter.com/1.1/users/show.json"; /*адрес API получения информации о пользователе*/
+
+const std::string CALLBACK_URL =      "https://github.com/moskanka/TwitterClient"; /*адрес, куда пользователь
                                                                             будет перенаправлен после аутентификации*/
 
 
