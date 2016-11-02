@@ -10,6 +10,11 @@ Twitter::Client::Client() :
     client_handle = curl_easy_init();
 }
 
+Twitter::Client::~Client()
+{
+    curl_easy_cleanup(client_handle);
+}
+
 auto Twitter::Client::check_connection() -> bool
 {
     if (client_handle)
@@ -101,7 +106,6 @@ auto Twitter::Client::check_connection() -> bool
         post_header_data += escape(client_handle, "https://apps.twitter.com/app/13018740");
 
         std::string post_body_data;
-        post_body_data += URL_SEPARATOR;
         post_body_data += "grant_type=client_credentials";
 
         std::string content; std::string header;
@@ -109,8 +113,12 @@ auto Twitter::Client::check_connection() -> bool
         curl_easy_setopt(client_handle, CURLOPT_WRITEDATA, &content);
         curl_easy_setopt(client_handle, CURLOPT_HEADERFUNCTION, write_to_string);
         curl_easy_setopt(client_handle, CURLOPT_WRITEHEADER, header);
-        curl_easy_setopt(client_handle, CURLOPT_READFUNCTION, /*read_callback*/write_to_string);
-        curl_easy_setopt(client_handle, CURLOPT_READDATA, post_body_data);
+        FILE* read_f;
+        read_f = fopen("~//TwitterClient//sources//post_body.txt", "rb");
+
+
+        curl_easy_setopt(client_handle, CURLOPT_READFUNCTION, read_callback);
+        curl_easy_setopt(client_handle, CURLOPT_READDATA, read_f);
 
 
         // для более полной информации о процессе, которая будет выводить в консоли
@@ -134,19 +142,29 @@ auto Twitter::Client::check_connection() -> bool
 }
 
 
-auto Twitter::Client::read_callback(void* ptr, size_t size, size_t nmemb, void * stream) -> size_t
+static size_t read_callback(void *ptr, size_t size, size_t nmemb, void* stream)
 {
     curl_off_t nread;
-    //size_t retcode = fread(ptr, size, nmemb, stream);
-    //nread = (curl_off_t)retcode;
+    /* in real-world cases, this would probably get this data differently
+       as this fread() stuff is exactly what the library already would do
+       by default internally */
+    size_t retcode = fread(ptr, size, nmemb, stream);
 
-    std::cout << "*** We read " << CURL_FORMAT_CURL_OFF_T << " bytes from file" << std::endl;
-    //return retcode;
-    return 1;
+    nread = (curl_off_t) retcode;
+
+    fprintf(stderr, "*** We read %" CURL_FORMAT_CURL_OFF_T
+            " bytes from file\n", nread);
+    return retcode;
+}
+
+static size_t write_head(char* ptr, size_t size, size_t nmemb, std::ostream* stream)
+{
+    (*stream) << std::string(ptr, size * nmemb);
+    return size * nmemb;
 }
 
 
-auto Twitter::Client::write_to_string(void *ptr, size_t size, size_t count, void *stream) -> size_t
+auto Twitter::Client::write_to_string(void* ptr, size_t size, size_t count, void* stream) -> size_t
 {
     ((std::string*)stream)->append((char*)ptr, 0, size*count);
     return size*count;
