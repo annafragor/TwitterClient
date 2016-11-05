@@ -8,20 +8,13 @@
 #include <iostream>
 #include <string>
 #include <curl/curl.h>
-#include <time.h>
-#include <stdio.h>
 
 #include <twitter/constants.h>
 
-#include <sstream>
-
-
-
-namespace Twitter{
-
-    auto to_string(time_t val) -> std::string;
-
-    class Client{
+namespace Twitter
+{
+    class Client
+    {
     private:
         const std::string Base64_BEARER_TOKEN;
         CURL* client_handle;
