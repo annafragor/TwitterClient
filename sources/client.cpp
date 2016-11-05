@@ -4,8 +4,7 @@
 
 #include <twitter/client.h>
 
-Twitter::Client::Client() :
-        Base64_BEARER_TOKEN("eE5EWjA2UFVoNXB1WFRzUDZ1OU5OQ1dBWjp2dzRTamdaMTUwSDBIQzY1MzZsajJJTzhrdHp5V2hQNTJtTE9TVEZVQ2l0cVFOeGQ5SQ==")
+Twitter::Client::Client() : bearer_token("")
 {
     client_handle = curl_easy_init();
 }
@@ -24,11 +23,9 @@ auto Twitter::Client::check_connection() -> bool
 
 
         curl_slist* client_hlist = nullptr; //client header list
-        client_hlist = curl_slist_append(client_hlist, "Authorization: Basic ");
-        client_hlist = curl_slist_append(client_hlist, Base64_BEARER_TOKEN.c_str());
+        client_hlist = curl_slist_append(client_hlist, "Authorization: Basic eE5EWjA2UFVoNXB1WFRzUDZ1OU5OQ1dBWjp2dzRTamdaMTUwSDBIQzY1MzZsajJJTzhrdHp5V2hQNTJtTE9TVEZVQ2l0cVFOeGQ5SQ==");
         client_hlist = curl_slist_append(client_hlist, URL_SEPARATOR.c_str());
-        client_hlist = curl_slist_append(client_hlist, "Content-Type=application/");
-        client_hlist = curl_slist_append(client_hlist, escape(client_handle, "https://apps.twitter.com/app/13018740").c_str());
+        client_hlist = curl_slist_append(client_hlist, "Content-Type=applicatioт/x-www-form-urlencoded");
 
         std::string post_body_data;
         post_body_data += "grant_type=client_credentials";
@@ -43,9 +40,8 @@ auto Twitter::Client::check_connection() -> bool
         curl_easy_setopt(client_handle, CURLOPT_HEADERFUNCTION, write_to_string);
         curl_easy_setopt(client_handle, CURLOPT_WRITEHEADER, header);
 
-
         // для более полной информации о процессе, которая будет выводить в консоли
-        curl_easy_setopt(client_handle, CURLOPT_VERBOSE, 1L);
+        //curl_easy_setopt(client_handle, CURLOPT_VERBOSE, 1L);
 
         CURLcode res = curl_easy_perform(client_handle);
         curl_slist_free_all(client_hlist);
@@ -53,9 +49,13 @@ auto Twitter::Client::check_connection() -> bool
         std::cout << curl_easy_strerror(res) << std::endl;
         std::cout << "content: " << std::endl << content << std::endl;
         std::cout << "header: " << std::endl << header << std::endl;
-        std::cout << "you should go to" << std::endl;
-        std::cout << AUTHORIZE_URL << std::endl;
+
+        std::regex test_content("\\{\"token_type\":\"bearer\",\"access_token\":\"(.*)\"\\}");
+        std::smatch result;
+        std::regex_search(content, result, test_content);
+        std::cout << "!!! " << result[1] << std::endl;
     }
+    curl_easy_reset(client_handle); //обнуляем все ранее заданные опции данного хендла
     return true;
 }
 
@@ -64,7 +64,6 @@ static size_t write_head(char* ptr, size_t size, size_t nmemb, std::ostream* str
     (*stream) << std::string(ptr, size * nmemb);
     return size * nmemb;
 }
-
 
 auto Twitter::Client::write_to_string(void* ptr, size_t size, size_t count, void* stream) -> size_t
 {

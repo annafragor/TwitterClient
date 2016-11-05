@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <string>
+#include <regex>
 #include <curl/curl.h>
 
 #include <twitter/constants.h>
@@ -16,7 +17,7 @@ namespace Twitter
     class Client
     {
     private:
-        const std::string Base64_BEARER_TOKEN;
+        std::string bearer_token;
         CURL* client_handle;
 
     public:
