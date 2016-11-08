@@ -16,6 +16,11 @@ const std::string AUTHORIZE_URL =     "https://api.twitter.com/oauth/authorize";
 const std::string REQUEST_TOKEN_URL = "https://api.twitter.com/oauth/request_token";
 const std::string ACCESS_TOKEN_URL =  "https://api.twitter.com/oauth/access_token";
 
+const std::string FRIEND_LIST_URL =   "https://api.twitter.com/1.1/friends/list.json";
+
+const std::string MY_ID =             "904268618";
+
+
 const std::string ACCOUNT_DATA_URL =  "https://api.twitter.com/1.1/users/show.json"; /*адрес API получения информации о пользователе*/
 
 #endif //TWITTERCLIENT_CONSTANTS_H

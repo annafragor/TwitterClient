@@ -52,18 +52,55 @@ auto Twitter::Client::check_connection() -> bool
 
         std::regex test_content("\\{\"token_type\":\"bearer\",\"access_token\":\"(.*)\"\\}");
         std::smatch result;
-        std::regex_search(content, result, test_content);
-        std::cout << "!!! " << result[1] << std::endl;
+        if(std::regex_search(content, result, test_content))
+        {
+            bearer_token = result[1];
+            curl_easy_reset(client_handle); //обнуляем все ранее заданные опции данного хендла
+            return true;
+        }
     }
     curl_easy_reset(client_handle); //обнуляем все ранее заданные опции данного хендла
-    return true;
+    return false;
 }
 
-static size_t write_head(char* ptr, size_t size, size_t nmemb, std::ostream* stream)
+auto Twitter::Client::get_tweets(std::string username) -> json
 {
-    (*stream) << std::string(ptr, size * nmemb);
-    return size * nmemb;
+    curl_easy_setopt(client_handle, CURLOPT_POST, 0);
+    curl_easy_setopt(client_handle, CURLOPT_HTTPGET, 1L);
+
+    std::string content; std::string header;
+    curl_easy_setopt(client_handle, CURLOPT_WRITEFUNCTION, write_to_string);
+    curl_easy_setopt(client_handle, CURLOPT_WRITEDATA, &content);
+    curl_easy_setopt(client_handle, CURLOPT_HEADERFUNCTION, write_to_string);
+    curl_easy_setopt(client_handle, CURLOPT_WRITEHEADER, header);
+
+    curl_slist* client_hlist = nullptr;
+    std::string str = "Authorization: Bearer " + bearer_token;
+    client_hlist = curl_slist_append(client_hlist, str.c_str());
+    curl_easy_setopt(client_handle, CURLOPT_HTTPHEADER, client_hlist);
+
+    curl_easy_setopt(client_handle, CURLOPT_VERBOSE, 1L);
+    std::string url;
+    url = std::string("https://api.twitter.com/1.1/search/tweets.json?") + "q=" + escape(client_handle, username);
+    url = url + URL_SEPARATOR + "count=10" + URL_SEPARATOR + "result_type=recent";
+    curl_easy_setopt(client_handle, CURLOPT_URL, url.c_str());
+    curl_easy_perform(client_handle);
+
+
+    std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+    std::cout << "header:" << std::endl << header << std::endl;
+    std::cout << "content: " << std::endl << content << std::endl;
+
+    json result(content);
+    curl_slist_free_all(client_hlist);
+    return result;
 }
+
+//static size_t write_head(char* ptr, size_t size, size_t nmemb, std::ostream* stream)
+//{
+//    (*stream) << std::string(ptr, size * nmemb);
+//    return size * nmemb;
+//}
 
 auto Twitter::Client::write_to_string(void* ptr, size_t size, size_t count, void* stream) -> size_t
 {
