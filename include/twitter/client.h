@@ -31,9 +31,7 @@ namespace Twitter
         Client();
         ~Client();
         auto check_connection() -> bool;
-        auto get_tweets(std::string) -> json;
-
-
+        auto get_tweets(std::string, std::string) -> void;
     };
 }
 

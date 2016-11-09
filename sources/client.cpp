@@ -21,7 +21,6 @@ auto Twitter::Client::check_connection() -> bool
         curl_easy_setopt(client_handle, CURLOPT_URL, "https://api.twitter.com/oauth2/token");
         curl_easy_setopt(client_handle, CURLOPT_POST, 1);
 
-
         curl_slist* client_hlist = nullptr; //client header list
         client_hlist = curl_slist_append(client_hlist, "Authorization: Basic eE5EWjA2UFVoNXB1WFRzUDZ1OU5OQ1dBWjp2dzRTamdaMTUwSDBIQzY1MzZsajJJTzhrdHp5V2hQNTJtTE9TVEZVQ2l0cVFOeGQ5SQ==");
         client_hlist = curl_slist_append(client_hlist, URL_SEPARATOR.c_str());
@@ -63,7 +62,7 @@ auto Twitter::Client::check_connection() -> bool
     return false;
 }
 
-auto Twitter::Client::get_tweets(std::string username) -> json
+auto Twitter::Client::get_tweets(std::string username, std::string tweets_num) -> void
 {
     curl_easy_setopt(client_handle, CURLOPT_POST, 0);
     curl_easy_setopt(client_handle, CURLOPT_HTTPGET, 1L);
@@ -80,27 +79,30 @@ auto Twitter::Client::get_tweets(std::string username) -> json
     curl_easy_setopt(client_handle, CURLOPT_HTTPHEADER, client_hlist);
 
     curl_easy_setopt(client_handle, CURLOPT_VERBOSE, 1L);
+
     std::string url;
     url = std::string("https://api.twitter.com/1.1/search/tweets.json?") + "q=" + escape(client_handle, username);
-    url = url + URL_SEPARATOR + "count=10" + URL_SEPARATOR + "result_type=recent";
+    url = url + URL_SEPARATOR + "count=" + tweets_num + URL_SEPARATOR + "result_type=recent";
     curl_easy_setopt(client_handle, CURLOPT_URL, url.c_str());
-    curl_easy_perform(client_handle);
 
-
-    std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
     std::cout << "header:" << std::endl << header << std::endl;
     std::cout << "content: " << std::endl << content << std::endl;
 
-    json result(content);
+    size_t num = 1;
+    if(curl_easy_perform(client_handle) == CURLE_OK)
+    {
+        json result = json::parse(content);
+        json statuses = result["statuses"];
+        for (json::iterator it = statuses.begin(); it != statuses.end(); ++it, ++num)
+        {
+            json text = it.value()["text"];
+            if (!text.is_null())
+                std::cout << "tweet №" << num << ": " << text.begin().value() << std::endl;
+        }
+    }
     curl_slist_free_all(client_hlist);
-    return result;
+    curl_easy_reset(client_handle); //обнуляем все ранее заданные опции данного хендла
 }
-
-//static size_t write_head(char* ptr, size_t size, size_t nmemb, std::ostream* stream)
-//{
-//    (*stream) << std::string(ptr, size * nmemb);
-//    return size * nmemb;
-//}
 
 auto Twitter::Client::write_to_string(void* ptr, size_t size, size_t count, void* stream) -> size_t
 {
