@@ -22,15 +22,13 @@ namespace Twitter
     private:
         std::string bearer_token;
         CURL* client_handle;
-
-        static auto write_to_string(void* data, size_t size, size_t nmemb, void* stream) -> size_t;
-        static auto escape(CURL* curl_handle, const std::string& link) noexcept -> std::string;
-        static auto read_callback(void* ptr, size_t size, size_t nmemb, void* stream) -> size_t;
+        static auto write_to_string(void*, size_t, size_t, void*) -> size_t;
+        static auto escape(CURL*, const std::string&) noexcept -> std::string;
 
     public:
         Client();
         ~Client();
-        auto check_connection() -> bool;
+        auto check_connection(const std::string, const std::string) -> bool;
         auto get_tweets(std::string, std::string) -> void;
     };
 }
