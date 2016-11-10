@@ -23,7 +23,11 @@ auto Twitter::Client::check_connection(const std::string cons_key, const std::st
         curl_easy_setopt(client_handle, CURLOPT_POST, 1);
 
         curl_slist* client_hlist = nullptr; //client header list
-        client_hlist = curl_slist_append(client_hlist, "Authorization: Basic eE5EWjA2UFVoNXB1WFRzUDZ1OU5OQ1dBWjp2dzRTamdaMTUwSDBIQzY1MzZsajJJTzhrdHp5V2hQNTJtTE9TVEZVQ2l0cVFOeGQ5SQ==");
+
+        const std::string my_bearer = cons_key + ":" + cons_secret;
+        std::string my_base64_bearer = encode64(my_bearer);
+
+        client_hlist = curl_slist_append(client_hlist, ("Authorization: Basic " + my_base64_bearer).c_str());
         client_hlist = curl_slist_append(client_hlist, URL_SEPARATOR.c_str());
         client_hlist = curl_slist_append(client_hlist, "Content-Type=applicatioт/x-www-form-urlencoded");
 

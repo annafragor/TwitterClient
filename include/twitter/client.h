@@ -11,8 +11,8 @@
 #include <curl/curl.h>
 
 #include <twitter/constants.h>
-#include <json.h>
 #include <twitter/base64.h>
+#include <json.h>
 
 using json = nlohmann::json;
 

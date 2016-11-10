@@ -25,7 +25,7 @@
 
 */
 
-#include "base64.h"
+/*#include "base64.h"
 #include <iostream>
 
 static const std::string base64_chars =
@@ -44,7 +44,8 @@ std::string base64_encode(unsigned char const* bytes_to_encode, unsigned int in_
     unsigned char char_array_3[3];
     unsigned char char_array_4[4];
 
-    while (in_len--) {
+    while (in_len--)
+    {
         char_array_3[i++] = *(bytes_to_encode++);
         if (i == 3) {
             char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
@@ -86,7 +87,8 @@ std::string base64_decode(std::string const& encoded_string) {
     unsigned char char_array_4[4], char_array_3[3];
     std::string ret;
 
-    while (in_len-- && ( encoded_string[in_] != '=') && is_base64(encoded_string[in_])) {
+    while (in_len-- && ( encoded_string[in_] != '=') && is_base64(encoded_string[in_]))
+    {
         char_array_4[i++] = encoded_string[in_]; in_++;
         if (i ==4) {
             for (i = 0; i <4; i++)
@@ -116,4 +118,23 @@ std::string base64_decode(std::string const& encoded_string) {
         for (j = 0; (j < i - 1); j++) ret += char_array_3[j];
     }
     return ret;
+}*/
+
+#include <twitter/base64.h>
+
+std::string decode64(const std::string& val)
+{
+    using namespace boost::archive::iterators;
+    using It = transform_width<binary_from_base64<std::string::const_iterator>, 8, 6>;
+    return boost::algorithm::trim_right_copy_if(std::string(It(std::begin(val)), It(std::end(val))), [](char c) {
+        return c == '\0';
+    });
+}
+
+std::string encode64(const std::string& val)
+{
+    using namespace boost::archive::iterators;
+    using It = base64_from_binary<transform_width<std::string::const_iterator, 6, 8>>;
+    auto tmp = std::string(It(std::begin(val)), It(std::end(val)));
+    return tmp.append((3 - val.size() % 3) % 3, '=');
 }
