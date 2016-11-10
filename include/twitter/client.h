@@ -12,6 +12,7 @@
 
 #include <twitter/constants.h>
 #include <json.h>
+#include <twitter/base64.h>
 
 using json = nlohmann::json;
 

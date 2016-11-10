@@ -16,6 +16,7 @@ Twitter::Client::~Client()
 
 auto Twitter::Client::check_connection(const std::string cons_key, const std::string cons_secret) -> bool
 {
+    std::string str;
     if (client_handle)
     {
         curl_easy_setopt(client_handle, CURLOPT_URL, "https://api.twitter.com/oauth2/token");

@@ -16,7 +16,7 @@ option(BUILD_SHARED_LIBS "Build shared instead of static library" OFF)
 option(BUILD_TESTS "Build tests for webdavclient" ON)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/)
-add_library(TwitterClient STATIC ${CMAKE_CURRENT_SOURCE_DIR}/sources/client.cpp)
+add_library(TwitterClient STATIC ${CMAKE_CURRENT_SOURCE_DIR}/sources/client.cpp sources/client.cpp tests/main.cpp)
 
 #find_package(Boost COMPONENTS regex REQUIRED)
 find_package(OpenSSL REQUIRED)
