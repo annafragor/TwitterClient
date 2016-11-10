@@ -3,11 +3,11 @@ matrix:
   include:
     - os: linux
       sudo: required
-      env: COMPILER_NAME=gcc CXX=g++-5 CC=gcc-5 -std=gnu++11
+      env: COMPILER_NAME=gcc CXX=g++-5 CC=gcc-5
       addons:
         apt:
           packages:
-            - g++-5
+            - g++ -std=c++11
             - cmake
           sources: &sources
             - llvm-toolchain-precise
