@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 2.8.7)
 
-set(SERVICE "Twitter")
+#set(SERVICE "Twitter")
 
-project(${SERVICE}Client)
+project(TwitterClient)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
