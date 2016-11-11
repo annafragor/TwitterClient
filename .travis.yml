@@ -7,12 +7,13 @@ matrix:
       addons:
         apt:
           packages:
-            - g++ -std=c++11
+            - g++-5
+            - libboost1.55-all-dev
             - cmake
           sources: &sources
             - llvm-toolchain-precise
             - ubuntu-toolchain-r-test
-      
+            - boost-latest
 script:
   - mkdir build
   - cd build
