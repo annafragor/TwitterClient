@@ -4,17 +4,8 @@
 
 #include <twitter/client.h>
 
-Twitter::Client::Client() : bearer_token("")
-{
-    client_handle = curl_easy_init();
-}
-
-Twitter::Client::~Client()
-{
-    curl_easy_cleanup(client_handle);
-}
-
-auto Twitter::Client::check_connection(const std::string cons_key, const std::string cons_secret) -> bool
+Twitter::Client::Client(std::map<const std::string, const std::string> input_data) :
+        bearer_token(""), client_handle(curl_easy_init())
 {
     std::string str;
     if (client_handle)
@@ -22,9 +13,9 @@ auto Twitter::Client::check_connection(const std::string cons_key, const std::st
         curl_easy_setopt(client_handle, CURLOPT_URL, "https://api.twitter.com/oauth2/token");
         curl_easy_setopt(client_handle, CURLOPT_POST, 1);
 
-        curl_slist* client_hlist = nullptr; //client header list
-
-        const std::string my_bearer = cons_key + ":" + cons_secret;
+        //client header list
+        curl_slist* client_hlist = nullptr;
+        const std::string my_bearer = input_data["consumer key"] + ":" + input_data["consumer secret"];
         std::string my_base64_bearer = encode64(my_bearer);
 
         client_hlist = curl_slist_append(client_hlist, ("Authorization: Basic " + my_base64_bearer).c_str());
@@ -44,31 +35,35 @@ auto Twitter::Client::check_connection(const std::string cons_key, const std::st
         curl_easy_setopt(client_handle, CURLOPT_HEADERFUNCTION, write_to_string);
         curl_easy_setopt(client_handle, CURLOPT_WRITEHEADER, header);
 
-        // для более полной информации о процессе, которая будет выводить в консоли
-        //curl_easy_setopt(client_handle, CURLOPT_VERBOSE, 1L);
-
         if (curl_easy_perform(client_handle) == CURLE_OK)
         {
-            curl_slist_free_all(client_hlist);
-
-            std::cout << "content: " << std::endl << content << std::endl;
-            std::cout << "header: " << std::endl << header << std::endl;
-
             std::regex test_content("\\{\"token_type\":\"bearer\",\"access_token\":\"(.*)\"\\}");
             std::smatch result;
             if(std::regex_search(content, result, test_content))
             {
                 bearer_token = result[1];
                 curl_easy_reset(client_handle); //обнуляем все ранее заданные опции данного хендла
-                return true;
             }
         }
+        curl_slist_free_all(client_hlist);
         curl_easy_reset(client_handle); //обнуляем все ранее заданные опции данного хендла
     }
-    return false;
 }
 
-auto Twitter::Client::get_tweets(std::string username, std::string tweets_num) -> void
+Twitter::Client::~Client()
+{
+    curl_easy_cleanup(client_handle);
+}
+
+auto Twitter::Client::check_connection() -> bool
+{
+    if(!bearer_token.length())
+        return false;
+    else
+        return true;
+}
+
+auto Twitter::Client::get_tweets(std::string username, std::string tweets_num) -> std::vector<Tweet>
 {
     curl_easy_setopt(client_handle, CURLOPT_POST, 0);
     curl_easy_setopt(client_handle, CURLOPT_HTTPGET, 1L);
@@ -91,23 +86,42 @@ auto Twitter::Client::get_tweets(std::string username, std::string tweets_num) -
     url = url + URL_SEPARATOR + "count=" + tweets_num + URL_SEPARATOR + "result_type=recent";
     curl_easy_setopt(client_handle, CURLOPT_URL, url.c_str());
 
-    size_t num = 1;
+    size_t num = 0;
+    std::vector<Tweet> result_tweets;
     if(curl_easy_perform(client_handle) == CURLE_OK)
     {
-        std::cout << "header:" << std::endl << header << std::endl;
-        std::cout << "content: " << std::endl << content << std::endl;
-
-        json result = json::parse(content);
-        json statuses = result["statuses"];
-        for (json::iterator it = statuses.begin(); it != statuses.end(); ++it, ++num)
+        try
         {
-            json text = it.value()["text"];
-            if (!text.is_null())
-                std::cout << "tweet №" << num << ": " << text.begin().value() << std::endl;
+            json result = json::parse(content);
+            json statuses = result["statuses"];
+            for (json::iterator it = statuses.begin(); it != statuses.end(); ++it, ++num)
+            {
+                Tweet tweet;
+
+                json text = it.value()["text"];
+                if (!text.is_null())
+                    tweet.text = text.begin().value();
+
+                json created_at = it.value()["created_at"];
+                if (!created_at.is_null())
+                    tweet.created_at = created_at.begin().value();
+
+                json retweet_count = it.value()["retweet_count"];
+                if (!retweet_count.is_null())
+                    tweet.retweet_count = retweet_count.begin().value();
+
+                result_tweets.push_back(tweet);
+            }
+        } catch(...)
+        {
+            std::cout << "There was an error in parsing server answer. Return value will be empty" << std::endl;
+            result_tweets.clear();
+            return result_tweets;
         }
     }
     curl_slist_free_all(client_hlist);
     curl_easy_reset(client_handle); //обнуляем все ранее заданные опции данного хендла
+    return result_tweets;
 }
 
 auto Twitter::Client::write_to_string(void* ptr, size_t size, size_t count, void* stream) -> size_t

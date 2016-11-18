@@ -8,6 +8,9 @@
 #include <iostream>
 #include <string>
 #include <regex>
+#include <vector>
+#include <map>
+#include <exception>
 #include <curl/curl.h>
 
 #include <twitter/constants.h>
@@ -18,6 +21,21 @@ using json = nlohmann::json;
 
 namespace Twitter
 {
+    struct Tweet
+    {
+        std::string text;
+        std::string created_at;
+        size_t retweet_count;
+
+        friend auto operator << (std::ostream& out, const Tweet& tweet) -> std::ostream&
+        {
+            out << "\ntext: " << tweet.text;
+            out << "\ncreated_at: " << tweet.created_at;
+            out << "\nretweets: " << tweet.retweet_count << "\n";
+            return out;
+        }
+    };
+
     class Client
     {
     private:
@@ -28,9 +46,10 @@ namespace Twitter
 
     public:
         Client();
+        Client(std::map<const std::string, const std::string>);
         ~Client();
-        auto check_connection(const std::string, const std::string) -> bool;
-        auto get_tweets(std::string, std::string) -> void;
+        auto check_connection() -> bool;
+        auto get_tweets(std::string, std::string) -> std::vector<Tweet>;
     };
 }
 
