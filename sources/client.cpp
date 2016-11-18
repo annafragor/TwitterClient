@@ -114,9 +114,8 @@ auto Twitter::Client::get_tweets(std::string username, std::string tweets_num) -
             }
         } catch(...)
         {
-            std::cout << "There was an error in parsing server answer. Return value will be empty" << std::endl;
+            std::cerr << "There was an error in parsing server answer. Return value will be empty" << std::endl;
             result_tweets.clear();
-            return result_tweets;
         }
     }
     curl_slist_free_all(client_hlist);
@@ -146,5 +145,5 @@ auto Twitter::Client::escape(CURL* curl_handle, const std::string& link) noexcep
 }
 catch(std::runtime_error& err)
 {
-    std::cout << err.what() << std::endl;
+    std::cerr << err.what() << std::endl;
 }

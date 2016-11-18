@@ -11,7 +11,7 @@ int main()
 
     std::cout << ">------------------------------------------------------------";
 
-    std::vector<Twitter::Tweet> tweets = cl.get_tweets("@taylorswift13", "3");
+    std::vector<Twitter::Tweet> tweets = cl.get_tweets("@taylorswift13", "10");
     for(auto& k : tweets)
     {
         std::cout << k;
