@@ -99,16 +99,20 @@ auto Twitter::Client::get_tweets(std::string username, std::string tweets_num) -
                 Tweet tweet;
 
                 json text = it.value()["text"];
-                if (!text.is_null())
+                if(!text.is_null())
                     tweet.text = text.begin().value();
 
                 json created_at = it.value()["created_at"];
-                if (!created_at.is_null())
+                if(!created_at.is_null())
                     tweet.created_at = created_at.begin().value();
 
                 json retweet_count = it.value()["retweet_count"];
-                if (!retweet_count.is_null())
+                if(!retweet_count.is_null())
                     tweet.retweet_count = retweet_count.begin().value();
+
+                json user = it.value()["user"];
+                if(!user.is_null())
+                    tweet.username = user["screen_name"];
 
                 result_tweets.push_back(tweet);
             }

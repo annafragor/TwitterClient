@@ -7,11 +7,12 @@ int main()
     data.insert(std::pair<const std::string, const std::string>("consumer secret", CONSUMER_SECRET));
     Twitter::Client cl(data);
 
-    std::cout << cl.check_connection() << std::endl;
+    if(cl.check_connection())
+        std::cout << "connection was set" << std::endl;
 
     std::cout << ">------------------------------------------------------------";
 
-    std::vector<Twitter::Tweet> tweets = cl.get_tweets("@taylorswift13", "10");
+    std::vector<Twitter::Tweet> tweets = cl.get_tweets("@taylorswift13", "3");
     for(auto& k : tweets)
     {
         std::cout << k;

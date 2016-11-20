@@ -25,10 +25,12 @@ namespace Twitter
     {
         std::string text;
         std::string created_at;
+        std::string username;
         size_t retweet_count;
 
         friend auto operator << (std::ostream& out, const Tweet& tweet) -> std::ostream&
         {
+            out << "\nauthor: " << tweet.username;
             out << "\ntext: " << tweet.text;
             out << "\ncreated_at: " << tweet.created_at;
             out << "\nretweets: " << tweet.retweet_count << "\n";
