@@ -3,14 +3,14 @@
 std::mutex mut;
 static size_t last_thr = 0;
 
-void f(bool _v, const size_t thr_id, const std::vector<Twitter::Tweet>& tweets, const size_t& n)
+void f(bool _v, const size_t thr_id, const std::vector<Twitter::Tweet>& tweets, const size_t n)
 {
     std::chrono::system_clock::time_point thr_time = std::chrono::system_clock::now();
     std::time_t t;
 
     for(size_t i = thr_id; i < tweets.size(); i += n)
     {
-        while(last_thr != thr_id) {}
+        while(last_thr != thr_id) { std::this_thread::sleep_for(std::chrono::milliseconds(100)); }
         std::lock_guard<std::mutex> lck(mut);
         std::cout << std::endl << "thread №" << thr_id + 1 << std::endl;
         if(_v)
@@ -47,27 +47,33 @@ int main(int argc, char* argv[])
 
     std::cout << ">------------------------------------------------------------";
     std::vector<Twitter::Tweet> tweets = cl.get_tweets("@taylorswift13", "5");
-    for(auto& k : tweets)
-        std::cout << k << std::endl << std::endl;
+    for(auto& tweet : tweets)
+        std::cout << tweet << std::endl << std::endl;
 
-    std::cout << ">-----------------------------------------------------------------" << std::endl;
+    std::cout << ">------------------------------------------------------------" << std::endl;
     size_t n = 0;
     std::cout << "Take into consideration, that " << std::thread::hardware_concurrency() <<
                                     " concurrent threads are supported." << std::endl;
-    std::cout << "input number of threads: ";   std::cin >> n;
+    std::cout << "input number of threads: ";
+    if(!(std::cin >> n))
+    {
+        std::cerr << "wrong input data" << std::endl;
+        return 0;
+    }
     /*
      * if((n < 1) || (n > std::thread::hardware_concurrency()))
      * {
      *      std::cerr << "wrong number of threads" << std::endl;
      *      return 0;
      * }
-     * */
+    */
     std::vector<std::thread> thrds(n);
     bool _v = false;
     if(argc == 2 && std::string(argv[1]) == "-v")
         _v = true;
     for(size_t i = 0; i < n; ++i)
-        thrds[i] = std::thread(f, _v, i, std::ref(tweets), std::ref(n));
+        thrds[i] = std::thread(f, _v, i, std::ref(tweets), n);
     for(size_t i = 0; i < n; ++i)
-        thrds[i].join();
+        if(thrds[i].joinable())
+            thrds[i].join();
 }
