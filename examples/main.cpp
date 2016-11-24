@@ -1,6 +1,41 @@
 #include <twitter/client.h>
 
-int main()
+std::mutex mut;
+static size_t last_thr = 0;
+
+void f(bool _v, const size_t thr_id, const std::vector<Twitter::Tweet>& tweets, const size_t& n)
+{
+    std::chrono::system_clock::time_point thr_time = std::chrono::system_clock::now();
+    std::time_t t;
+
+    for(size_t i = thr_id; i < tweets.size(); i += n)
+    {
+        while(last_thr != thr_id) {}
+        std::lock_guard<std::mutex> lck(mut);
+        std::cout << std::endl << "thread №" << thr_id + 1 << std::endl;
+        if(_v)
+        {
+            t = std::chrono::system_clock::to_time_t(thr_time);
+            std::cout << "thread №" << thr_id + 1 << " started at " << ctime(&t);
+        }
+        std::cout << tweets[i] << std::endl;
+
+        if(last_thr == n - 1)
+            last_thr = 0;
+        else
+            last_thr++;
+
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        if(_v)
+        {
+            thr_time = std::chrono::system_clock::now();
+            t = std::chrono::system_clock::to_time_t(thr_time);
+            std::cout << "thread №" << thr_id + 1 << " ended at " << ctime(&t);
+        }
+    }
+}
+
+int main(int argc, char* argv[])
 {
     std::map<const std::string, const std::string> data;
     data.insert(std::pair<const std::string, const std::string>("consumer key", CONSUMER_KEY));
@@ -11,11 +46,28 @@ int main()
         std::cout << "connection was set" << std::endl;
 
     std::cout << ">------------------------------------------------------------";
-
-    std::vector<Twitter::Tweet> tweets = cl.get_tweets("@taylorswift13", "3");
+    std::vector<Twitter::Tweet> tweets = cl.get_tweets("@taylorswift13", "5");
     for(auto& k : tweets)
-    {
-        std::cout << k;
-    }
-}
+        std::cout << k << std::endl << std::endl;
 
+    std::cout << ">-----------------------------------------------------------------" << std::endl;
+    size_t n = 0;
+    std::cout << "Take into consideration, that " << std::thread::hardware_concurrency() <<
+                                    " concurrent threads are supported." << std::endl;
+    std::cout << "input number of threads: ";   std::cin >> n;
+    /*
+     * if((n < 1) || (n > std::thread::hardware_concurrency()))
+     * {
+     *      std::cerr << "wrong number of threads" << std::endl;
+     *      return 0;
+     * }
+     * */
+    std::vector<std::thread> thrds(n);
+    bool _v = false;
+    if(argc == 2 && std::string(argv[1]) == "-v")
+        _v = true;
+    for(size_t i = 0; i < n; ++i)
+        thrds[i] = std::thread(f, _v, i, std::ref(tweets), std::ref(n));
+    for(size_t i = 0; i < n; ++i)
+        thrds[i].join();
+}

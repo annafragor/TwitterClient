@@ -55,7 +55,7 @@ Twitter::Client::~Client()
     curl_easy_cleanup(client_handle);
 }
 
-auto Twitter::Client::check_connection() -> bool
+auto Twitter::Client::check_connection() const -> bool
 {
     if(!bearer_token.length())
         return false;
@@ -63,7 +63,7 @@ auto Twitter::Client::check_connection() -> bool
         return true;
 }
 
-auto Twitter::Client::get_tweets(std::string username, std::string tweets_num) -> std::vector<Tweet>
+auto Twitter::Client::get_tweets(std::string username, std::string tweets_num) const -> std::vector<Tweet>
 {
     curl_easy_setopt(client_handle, CURLOPT_POST, 0);
     curl_easy_setopt(client_handle, CURLOPT_HTTPGET, 1L);

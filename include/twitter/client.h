@@ -11,8 +11,13 @@
 #include <vector>
 #include <map>
 #include <exception>
-#include <curl/curl.h>
+#include <thread>
+#include <mutex>
+#include <chrono>
+#include <ctime>
+#include <condition_variable>
 
+#include <curl/curl.h>
 #include <twitter/constants.h>
 #include <twitter/base64.h>
 #include <json.h>
@@ -30,10 +35,10 @@ namespace Twitter
 
         friend auto operator << (std::ostream& out, const Tweet& tweet) -> std::ostream&
         {
-            out << "\nauthor: " << tweet.username;
+            out << "author: " << tweet.username;
             out << "\ntext: " << tweet.text;
             out << "\ncreated_at: " << tweet.created_at;
-            out << "\nretweets: " << tweet.retweet_count << "\n";
+            out << "\nretweets: " << tweet.retweet_count;
             return out;
         }
     };
@@ -50,8 +55,8 @@ namespace Twitter
         Client();
         Client(std::map<const std::string, const std::string>);
         ~Client();
-        auto check_connection() -> bool;
-        auto get_tweets(std::string, std::string) -> std::vector<Tweet>;
+        auto check_connection() const -> bool;
+        auto get_tweets(std::string, std::string) const -> std::vector<Tweet>;
     };
 }
 
