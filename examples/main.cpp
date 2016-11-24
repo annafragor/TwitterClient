@@ -54,8 +54,8 @@ int main(int argc, char* argv[])
     size_t n = 0;
     std::cout << "Take into consideration, that " << std::thread::hardware_concurrency() <<
                                     " concurrent threads are supported." << std::endl;
-    std::cout << "input number of threads: ";
-    if(!(std::cin >> n))
+    std::cout << "input number of threads: "; std::cin >> n;
+    if(!std::cin)
     {
         std::cerr << "wrong input data" << std::endl;
         return 0;
