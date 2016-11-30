@@ -20,7 +20,7 @@ void word_counter(std::string str, size_t& counter)
 int main(int argc, char* argv[])
 {
     std::string exec;
-    std::vector<std::string> args(1, "");
+    std::vector<std::string> args(1, exec);
     if((argc != 3) && (argc != 2))
     {
         std::cout << "wrong number of arguments!" << std::endl;
@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
     {
         exec = argv[1];
         if(argc == 3)
-            args[0] = argv[2];
+            args.push_back(argv[2]);
     }
 
     size_t counter = 0;
