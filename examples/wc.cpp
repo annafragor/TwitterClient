@@ -5,12 +5,12 @@
 
 namespace bp = ::boost::process;
 
-std::regex lol("\\s*(\\S+)\\s*(.*)\\s*");
+std::regex control_string("\\s*(\\S+)\\s*(.*)\\s*");
 
 void word_counter(std::string str, size_t& counter)
 {
     std::smatch res;
-    if(std::regex_match(str, res, lol))
+    if(std::regex_match(str, res, control_string))
     {
         ++counter;
         word_counter(res[2].str(), counter);
