@@ -17,6 +17,7 @@
 #include <ctime>
 #include <condition_variable>
 
+#include <boost/process.hpp>
 #include <curl/curl.h>
 #include <twitter/constants.h>
 #include <twitter/base64.h>

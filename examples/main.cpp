@@ -35,6 +35,8 @@ void f(bool _v, const size_t thr_id, const std::vector<Twitter::Tweet>& tweets, 
     }
 }
 
+
+
 int main(int argc, char* argv[])
 {
     std::map<const std::string, const std::string> data;
@@ -45,7 +47,7 @@ int main(int argc, char* argv[])
     if(cl.check_connection())
         std::cout << "connection was set" << std::endl;
 
-    std::cout << ">------------------------------------------------------------";
+    std::cout << ">------------------------------------------------------------" << std::endl;
     std::vector<Twitter::Tweet> tweets = cl.get_tweets("@taylorswift13", "5");
     for(auto& tweet : tweets)
         std::cout << tweet << std::endl << std::endl;
@@ -53,20 +55,13 @@ int main(int argc, char* argv[])
     std::cout << ">------------------------------------------------------------" << std::endl;
     size_t n = 0;
     std::cout << "Take into consideration, that " << std::thread::hardware_concurrency() <<
-                                    " concurrent threads are supported." << std::endl;
+              " concurrent threads are supported." << std::endl;
     std::cout << "input number of threads: "; std::cin >> n;
     if(!std::cin)
     {
         std::cerr << "wrong input data" << std::endl;
         return 0;
     }
-    /*
-     * if((n < 1) || (n > std::thread::hardware_concurrency()))
-     * {
-     *      std::cerr << "wrong number of threads" << std::endl;
-     *      return 0;
-     * }
-    */
     std::vector<std::thread> thrds(n);
     bool _v = false;
     if(argc == 2 && std::string(argv[1]) == "-v")
